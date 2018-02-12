@@ -15,7 +15,7 @@ public class SearchGraph {
         Integer s = 0;
         for (Integer a = 0; a < board.length; a ++) {
             for (Integer b = 0; b < board[0].length; b ++) {
-                s *= 29;
+                s *= 23;
                 s += board[a][b];
             }
         }
@@ -34,14 +34,7 @@ public class SearchGraph {
             frontier.remove(0);
             SGState curState = curNode.getState();
             Integer curHash = hash(curState);
-            // System.out.println(curState + " hashes to " + hash(curState));
-            // print out progress
-            if (i % 10000 == 0) {
 
-                System.out.println("i:" + i);
-                System.out.println("frontier: " + frontier.size());
-                System.out.println("explored: " + explored.size());
-            }
             i++;
             // if we found a complete solution...
             if (curState.checkDone()) {
@@ -89,13 +82,7 @@ public class SearchGraph {
             frontier.remove(0);
             SGState curState = curNode.getState();
             Integer curHash = hash(curState);
-            // System.out.println(curState + " hashes to " + hash(curState));
-            if (i % 10000 == 0) {
 
-                System.out.println("i:" + i);
-                System.out.println("frontier: " + frontier.size());
-                System.out.println("explored: " + explored.size());
-            }
             i++;
             if (curState.checkDone()) {
                 return new SGSolution(curNode);
