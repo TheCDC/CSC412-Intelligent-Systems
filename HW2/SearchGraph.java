@@ -10,11 +10,12 @@ public class SearchGraph {
 
     public static final int TESTDATA = 4;
     public static Integer hash(SGState toHash) {
+        // Hash a board to speed up lookups
         int[][] board = toHash.board;
         Integer s = 0;
         for (Integer a = 0; a < board.length; a ++) {
             for (Integer b = 0; b < board[0].length; b ++) {
-                s *= 27;
+                s *= 29;
                 s += board[a][b];
             }
         }
@@ -22,9 +23,7 @@ public class SearchGraph {
     }
     public SGSolution breadthFirstSearch(SGProblem p) {  // as discussed on page 82
         LinkedList<SGNode> frontier = new LinkedList<SGNode>();
-        LinkedList<SGState> explored = new LinkedList<SGState>();
-        HashSet<Integer> seen = new HashSet<>();
-        // {{{ YOUR CODE GOES HERE...}}}
+        HashSet<Integer> explored = new HashSet<Integer>();
         SGState start = new SGState(0);
         SGNode rootNode = new SGNode(start, null, new SGAction(""), 0);
         System.out.println(rootNode.getState());
@@ -34,7 +33,9 @@ public class SearchGraph {
             SGNode curNode = frontier.get(0);
             frontier.remove(0);
             SGState curState = curNode.getState();
-            System.out.println(curState + " hashes to " + hash(curState));
+            Integer curHash = hash(curState);
+            // System.out.println(curState + " hashes to " + hash(curState));
+            // print out progress
             if (i % 10000 == 0) {
 
                 System.out.println("i:" + i);
@@ -42,32 +43,27 @@ public class SearchGraph {
                 System.out.println("explored: " + explored.size());
             }
             i++;
+            // if we found a complete solution...
             if (curState.checkDone()) {
                 return new SGSolution(curNode);
             }
+            // check whether we've been here before
             boolean found = false;
-
-            for (SGState s : explored) {
-                if (s.equals(curState)) {
-                    found = true;
-                    break;
-                }
-            }
+            found = explored.contains(curHash);
+            // if not, record that we have now been here
             if (!found) {
-                explored.add(curState);
+                explored.add(curHash);
             }
+            // for each possible next action
             for (SGAction a : p.allowedActions(curState)) {
                 SGNode possible = curNode.childNode(p, a);
                 found = false;
-
-                for (SGState s : explored) {
-                    if (s.equals(possible.getState())) {
-                        found = true;
-                        break;
-                    }
-                }
+                SGState pboard = possible.getState();
+                Integer pboardHash = hash(pboard);
+                found = explored.contains(pboardHash);
                 if (!found) {
-                    explored.add(possible.getState());
+                    // only add it if we haven't been there already
+                    explored.add(pboardHash);
                     frontier.add(possible);
                 }
             }
@@ -80,25 +76,63 @@ public class SearchGraph {
 
         PriorityQueue<SGNode> frontier =
             new PriorityQueue<SGNode>(INITIALSIZE, new SGNode.SortByCost());
-        LinkedList<SGState> explored = new LinkedList<SGState>();
-
-        // {{{ YOUR CODE GOES HERE... }}}
-        SGState start = new SGState(1);
+        // almost all of the following code is copied from breadthFirstSearch
+        HashSet<Integer> explored = new HashSet<Integer>();
+        SGState start = new SGState(0);
         SGNode rootNode = new SGNode(start, null, new SGAction(""), 0);
-        for (SGAction a : p.allowedActions(start)) {
-            frontier.add(rootNode.childNode(p, a));
+        System.out.println(rootNode.getState());
+        frontier.add(rootNode);
+        int i = 0;
+        while (true) {
+            // only difference between this method and the other is API for frontier object
+            SGNode curNode = frontier.poll();
+            frontier.remove(0);
+            SGState curState = curNode.getState();
+            Integer curHash = hash(curState);
+            // System.out.println(curState + " hashes to " + hash(curState));
+            if (i % 10000 == 0) {
+
+                System.out.println("i:" + i);
+                System.out.println("frontier: " + frontier.size());
+                System.out.println("explored: " + explored.size());
+            }
+            i++;
+            if (curState.checkDone()) {
+                return new SGSolution(curNode);
+            }
+            boolean found = false;
+            found = explored.contains(curHash);
+
+            if (!found) {
+                explored.add(curHash);
+            }
+            for (SGAction a : p.allowedActions(curState)) {
+                SGNode possible = curNode.childNode(p, a);
+                found = false;
+                SGState pboard = possible.getState();
+                Integer pboardHash = hash(pboard);
+                found = explored.contains(pboardHash);
+                if (!found) {
+                    explored.add(pboardHash);
+                    frontier.add(possible);
+                }
+            }
         }
-        return new SGSolution(rootNode);
     }
 
 
     public static void main(String[] args) {
         SearchGraph sg = new SearchGraph();
+        try {
 
-        // SGSolution soln = sg.uniformCostSearch(new SGProblem());
-        SGSolution soln = sg.breadthFirstSearch(new SGProblem());
+            // SGSolution soln = sg.uniformCostSearch(new SGProblem());
+            SGSolution soln = sg.breadthFirstSearch(new SGProblem());
+            System.out.println("Solution is " + soln.getLength() + " long;");
+            System.out.println(soln.toString());
+        } catch (java.lang.IndexOutOfBoundsException | NullPointerException e) {
 
-        System.out.println("Solution is " + soln.getLength() + " long;");
-        System.out.println(soln.toString());
+            System.out.println("Puzzle has no solutions!");
+        }
+
     }
 }

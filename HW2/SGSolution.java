@@ -7,18 +7,18 @@ import java.util.ArrayList;
 public class SGSolution {
     ArrayList<SGAction> actions = new ArrayList<SGAction>();
 
-    public SGSolution(){
+    public SGSolution() {
     }
 
     public SGSolution(SGNode n) {
         Stack<SGNode> stk = new Stack<SGNode>();
 
-        while(n.getParent() != null) {      // use a stack to get the nodes in reverse order
+        while (n.getParent() != null) {     // use a stack to get the nodes in reverse order
             stk.push(n);
             n = n.getParent();
         }
 
-        while(!stk.isEmpty()) {             // form the array of actions
+        while (!stk.isEmpty()) {            // form the array of actions
             n = stk.pop();
             actions.add(n.getAction());
         }
