@@ -21,7 +21,7 @@ public class SearchGraph {
         }
         return s;
     }
-    public SGSolution breadthFirstSearch(SGProblem p) {  // as discussed on page 82
+    public SGSolution breadthFirstSearch(SGProblem problem) {  // as discussed on page 82
         LinkedList<SGNode> frontier = new LinkedList<SGNode>();
         HashSet<Integer> explored = new HashSet<Integer>();
         SGState start = new SGState(0);
@@ -48,8 +48,8 @@ public class SearchGraph {
                 explored.add(curHash);
             }
             // for each possible next action
-            for (SGAction a : p.allowedActions(curState)) {
-                SGNode possible = curNode.childNode(p, a);
+            for (SGAction a : problem.allowedActions(curState)) {
+                SGNode possible = curNode.childNode(problem, a);
                 found = false;
                 SGState pboard = possible.getState();
                 Integer pboardHash = hash(pboard);
