@@ -29,12 +29,23 @@ public class GAPopulation {
 	}
 	public int sort() {
 		Collections.sort(this.boards);
-		return this.boards.get(this.boards.getLength()-1);
+		return this.boards.get(this.boards.size()-1).getFitness();
 	}
 	public String getFitnessString() {
 		return "not implemented";
 	}
 	public void mutate(double prob) {
+		for (SudokuBoard b : this.boards){
+            for (int x = 0; x < 9; x++) {
+                for (int y = 0; y < 9; y++) {
+                    double d = rand.nextDouble();
+                    if (d < prob){
+                        b.cells[x][y] = rand.nextInt(9)+1;
+
+                    }
+                }
+            }
+        }
 
 	}
 	public GAPopulation crossover() {

@@ -6,7 +6,7 @@ import java.util.List;
 
 public class SudokuBoard implements Comparable<SudokuBoard> {
     private static final int SZ = 9;        // there are spots in the code that won't work if SZ != 9
-    private Integer cells[][];
+    public Integer cells[][];
 
     public SudokuBoard() {
         cells = new Integer[SZ][SZ];

@@ -15,6 +15,8 @@ public class SearchGraph {
         Integer s = 0;
         for (Integer a = 0; a < board.length; a ++) {
             for (Integer b = 0; b < board[0].length; b ++) {
+                // a small prime works here because each
+                // element used in the hash is within [0,9]
                 s *= 23;
                 s += board[a][b];
             }
@@ -25,6 +27,7 @@ public class SearchGraph {
         LinkedList<SGNode> frontier = new LinkedList<SGNode>();
         HashSet<Integer> explored = new HashSet<Integer>();
         SGState start = new SGState(0);
+        // construct the root node
         SGNode rootNode = new SGNode(start, null, new SGAction(""), 0);
         System.out.println(rootNode.getState());
         frontier.add(rootNode);
