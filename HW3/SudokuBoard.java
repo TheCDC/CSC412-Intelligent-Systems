@@ -4,14 +4,17 @@
 import java.util.ArrayList;
 import java.util.List;
 
-public class SudokuBoard {
+public class SudokuBoard implements Comparable<SudokuBoard> {
     private static final int SZ = 9;        // there are spots in the code that won't work if SZ != 9
     private Integer cells[][];
 
     public SudokuBoard() {
         cells = new Integer[SZ][SZ];
     }       // initializes to all zeros
-
+    @Override
+    public int compareTo(SudokuBoard b){
+        return this.getFitness() - b.getFitness();
+    }
     public String toString() {
         String res = "";
         for (int yinc = 0; yinc < SZ; yinc++) {
