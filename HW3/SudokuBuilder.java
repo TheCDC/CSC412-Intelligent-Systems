@@ -6,7 +6,7 @@ import java.util.Random;
 public class SudokuBuilder {
     private static final int NUMGENERATIONS = 100000000;
     private static final int PERFECTSCORE = 243;
-    private static double mutateProb = 0.0001;
+    private static double mutateProb = 0.0005;
     private int popsize;
     private GAPopulation pop;
     private Random rand = new Random();
@@ -60,8 +60,8 @@ public class SudokuBuilder {
                 if (maxfitness == PERFECTSCORE) {
                     break;
                 }
-                if ((mutateProb < 0.01) && (generation % 1000) == 0) {
-                    mutateProb *= 1.05;
+                if ((mutateProb < 0.9) && (generation % 100) == 0) {
+                    mutateProb *= 1.1;
                 }
             }
             // writer.close();
