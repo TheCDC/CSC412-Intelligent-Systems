@@ -60,10 +60,11 @@ public class SudokuBuilder {
                 if (maxfitness == PERFECTSCORE) {
                     break;
                 }
-                if ((mutateProb < 0.9) && (generation % 100) == 0) {
+                if ((mutateProb < 1) && (generation % 100) == 0) {
                     mutateProb *= 1.1;
                 }
             }
+            // int x = 1/0;
             // writer.close();
         } catch (Exception e) {
 

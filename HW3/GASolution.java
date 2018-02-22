@@ -25,7 +25,6 @@ public class GASolution {
 		// for (int i = sliceEnd; i < sliceEnd; i++) {
 		for (int i = 0; i < SIZE; i++) {
 			if (rand.nextDouble() < 0.5) {
-
 				other.genome[i] = this.genome[i];
 			}
 

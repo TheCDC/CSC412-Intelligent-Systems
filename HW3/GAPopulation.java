@@ -17,6 +17,30 @@ public class GAPopulation {
 			this.indices.add(i);
 		}
 	}
+	public String toString() {
+		SudokuBoard b = new SudokuBoard();
+		b.fill(getBestSolution().genome);
+		return "" + b;
+	}
+	public GASolution getBestSolution() {
+
+		SudokuBoard b = new SudokuBoard();
+		b.fill(this.population.get(0).genome);
+		int best  = b.getFitness();
+		GASolution bs = null;
+		for (GASolution s : this.population) {
+			if (bs == null) {
+				bs = s;
+			}
+			b.fill(s.genome);
+			int f = b.getFitness();
+			if (f > best) {
+				best = f;
+				bs = s;
+			}
+		}
+		return bs;
+	}
 	public GAPopulation() {
 		this(DEFAULT_POP_SIZE);
 	}
@@ -26,25 +50,21 @@ public class GAPopulation {
 	}
 	public int sort() {
 		SudokuBoard b = new SudokuBoard();
-		b.fill(this.population.get(0).genome);
-		int best  = b.getFitness();
-		for (GASolution s : this.population) {
-			b.fill(s.genome);
-			int f = b.getFitness();
-			if (f > best) {
-				best = f;
-			}
-		}
-		return best;
+		b.fill(getBestSolution().genome);
+		return b.getFitness();
 	}
 	public String getFitnessString() {
 		return "not implemented";
 	}
 	public void mutate(double prob) {
 		for ( GASolution s : this.population) {
-			double d = rand.nextDouble();
-			if (d < prob) {
-				s.mutate();
+			double p = prob;
+			while (p > 0) {
+				double d = rand.nextDouble();
+				if (d < prob) {
+					s.mutate();
+				}
+				p -= 1;
 			}
 		}
 
@@ -53,34 +73,42 @@ public class GAPopulation {
 	public GAPopulation breed() {
 		Collections.shuffle(this.indices);
 		// System.out.println(this.indices);
+		int numTournaments = 10;
+		int tournamentSize = this.popSize / numTournaments;
 
-		int tournamentSize = 100;
 //        System.out.println(this.popSize / tournamentSize);
 		for (int tournamentI = 0; tournamentI < this.popSize / tournamentSize; tournamentI++) {
 			SudokuBoard b = new SudokuBoard();
 			int bestFitness  = 0;
 
-			GASolution bestSolution = null;
-			for (int i = tournamentI; i < tournamentI + tournamentSize; i++) {
-				GASolution s = this.population.get(this.indices.get(i));
-				if (bestSolution == null) {
-					bestSolution = s;
-					b.fill(s.genome);
-					bestFitness = b.getFitness();
-				} else {
-					b.fill(s.genome);
-					int f = b.getFitness();
-					if (f > bestFitness) {
-						// System.out.println("Tournament winner:\n" + f);
+			int windowStart = tournamentI * tournamentSize;
+			int windowEnd = windowStart + tournamentSize;
+			int passes = 3;
+			// performe multiple tournaments per generation to
+			// smooth out losses due to mutation?
+			for (int p = 0; p < passes; p ++) {
+				GASolution bestSolution = null;
+				for (int i = windowStart; i < windowEnd; i++) {
+					GASolution s = this.population.get(this.indices.get(i));
+					if (bestSolution == null) {
 						bestSolution = s;
-						bestFitness = f;
+						b.fill(s.genome);
+						bestFitness = b.getFitness();
+					} else {
+						b.fill(s.genome);
+						int f = b.getFitness();
+						if (f > bestFitness) {
+							// System.out.println("Tournament winner:\n" + f);
+							bestSolution = s;
+							bestFitness = f;
+						}
 					}
-				}
 
-			}
-			for (int i = tournamentI; i < tournamentI + tournamentSize; i++) {
-				GASolution s = this.population.get(this.indices.get(i));
-				bestSolution.crossover(s);
+				}
+				for (int i = windowStart; i < windowEnd; i++) {
+					GASolution s = this.population.get(this.indices.get(i));
+					bestSolution.crossover(s);
+				}
 			}
 		}
 		return this;
