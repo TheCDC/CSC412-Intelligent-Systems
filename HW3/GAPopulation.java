@@ -3,55 +3,86 @@ import java.util.List;
 import java.util.Collections;
 import java.util.Random;
 
+
 public class GAPopulation {
-	private List<SudokuBoard> boards = new ArrayList<SudokuBoard> ();
-	private static final  int DEFAULT_POP_SIZE = 1000;
+	private List<GASolution> population = new ArrayList<GASolution> ();
+	private static final int DEFAULT_POP_SIZE = 1000;
 	private Random rand = new Random();
 	private int popSize = 0;
+	private List<Integer> indices = new ArrayList<>();
 	public GAPopulation(int size) {
 		this.popSize = size;
+		for (int i = 0; i < size; i++) {
+			this.population.add(new GASolution());
+			this.indices.add(i);
+		}
 	}
 	public GAPopulation() {
 		this(DEFAULT_POP_SIZE);
 	}
 	public void initialize() {
-		for (int i = 0 ; i < this.popSize; i ++) {
-			SudokuBoard b  = new SudokuBoard();
-			Integer[] cells = new Integer[81];
-			for (int ci = 0; ci < 81; ci ++){
-				cells[ci] = rand.nextInt(9)+1;
-			}
-			b.fill(cells);
-			this.boards.add(b);
 
-		}
 
 	}
 	public int sort() {
-		Collections.sort(this.boards);
-		return this.boards.get(this.boards.size()-1).getFitness();
+		SudokuBoard b = new SudokuBoard();
+		b.fill(this.population.get(0).genome);
+		int best  = b.getFitness();
+		for (GASolution s : this.population) {
+			b.fill(s.genome);
+			int f = b.getFitness();
+			if (f > best) {
+				best = f;
+			}
+		}
+		return best;
 	}
 	public String getFitnessString() {
 		return "not implemented";
 	}
 	public void mutate(double prob) {
-		for (SudokuBoard b : this.boards){
-            for (int x = 0; x < 9; x++) {
-                for (int y = 0; y < 9; y++) {
-                    double d = rand.nextDouble();
-                    if (d < prob){
-                        b.cells[x][y] = rand.nextInt(9)+1;
-
-                    }
-                }
-            }
-        }
+		for ( GASolution s : this.population) {
+			double d = rand.nextDouble();
+			if (d < prob) {
+				s.mutate();
+			}
+		}
 
 	}
-	public GAPopulation crossover() {
-		return this;
-	}
+
 	public GAPopulation breed() {
+		Collections.shuffle(this.indices);
+		// System.out.println(this.indices);
+
+		int tournamentSize = 100;
+//        System.out.println(this.popSize / tournamentSize);
+		for (int tournamentI = 0; tournamentI < this.popSize / tournamentSize; tournamentI++) {
+			SudokuBoard b = new SudokuBoard();
+			int bestFitness  = 0;
+
+			GASolution bestSolution = null;
+			for (int i = tournamentI; i < tournamentI + tournamentSize; i++) {
+				GASolution s = this.population.get(this.indices.get(i));
+				if (bestSolution == null) {
+					bestSolution = s;
+					b.fill(s.genome);
+					bestFitness = b.getFitness();
+				} else {
+					b.fill(s.genome);
+					int f = b.getFitness();
+					if (f > bestFitness) {
+						// System.out.println("Tournament winner:\n" + f);
+						bestSolution = s;
+						bestFitness = f;
+					}
+				}
+
+			}
+			for (int i = tournamentI; i < tournamentI + tournamentSize; i++) {
+				GASolution s = this.population.get(this.indices.get(i));
+				bestSolution.crossover(s);
+			}
+		}
 		return this;
 	}
 }

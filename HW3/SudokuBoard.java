@@ -3,6 +3,8 @@
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.HashSet;
 
 public class SudokuBoard implements Comparable<SudokuBoard> {
     private static final int SZ = 9;        // there are spots in the code that won't work if SZ != 9
@@ -12,7 +14,7 @@ public class SudokuBoard implements Comparable<SudokuBoard> {
         cells = new Integer[SZ][SZ];
     }       // initializes to all zeros
     @Override
-    public int compareTo(SudokuBoard b){
+    public int compareTo(SudokuBoard b) {
         return this.getFitness() - b.getFitness();
     }
     public String toString() {
@@ -55,37 +57,49 @@ public class SudokuBoard implements Comparable<SudokuBoard> {
         int fitness = 0, inc;
 
         List<Integer> checkArray = new ArrayList<Integer>(SZ);
+        Set<Integer> checkSet = new HashSet<>();
         // first check the rows for each value from 1 to 9
         inc = 0;
         for (int xinc = 0; xinc < SZ; xinc++) {
+            checkSet.clear();
             checkArray.clear();
             for (int yinc = 0; yinc < SZ; yinc++) {
-                checkArray.add(cells[yinc][xinc]);
+//                checkArray.add(cells[yinc][xinc]);
+                checkSet.add(cells[yinc][xinc]);
             }
-            fitness += numPresent(checkArray, SZ);
+//            fitness += numPresent(checkArray, SZ);
+            fitness += checkSet.size();
         }
 
         // now check the columns for each value from 1 to 9
         inc = 0;
         for (int yinc = 0; yinc < SZ; yinc++) {
             checkArray.clear();
+            checkSet.clear();
             for (int xinc = 0; xinc < SZ; xinc++) {
-                checkArray.add(cells[yinc][xinc]);
+//                checkArray.add(cells[yinc][xinc]);
+                checkSet.add(cells[yinc][xinc]);
             }
-            fitness += numPresent(checkArray, SZ);
+
+//            fitness += numPresent(checkArray, SZ);
+            fitness += checkSet.size();
         }
 
         // finally check each 3x3 cell...
         for (int youter = 0; youter < 3; youter++) {
             for (int xouter = 0; xouter < 3; xouter++) {
                 checkArray.clear();
+                checkSet.clear();
                 for (int yinner = 0; yinner < 3; yinner++) {
                     for (int xinner = 0; xinner < 3; xinner++) {
-                        checkArray.add(cells[youter*3 + yinner][xouter*3+xinner]);
+//                        checkArray.add(cells[youter*3 + yinner][xouter*3+xinner]);
+                        checkSet.add(cells[youter * 3 + yinner][xouter * 3 + xinner]);
                     }
                 }
-                fitness += numPresent(checkArray, SZ);
+//                fitness += numPresent(checkArray, SZ);
+                fitness += checkSet.size();
             }
+
         }
 
         return fitness;
@@ -101,7 +115,8 @@ public class SudokuBoard implements Comparable<SudokuBoard> {
                                 5, 4, 9, 2, 1, 6, 7, 3, 8,
                                 7, 6, 3, 5, 2, 4, 1, 8, 9,
                                 9, 2, 8, 6, 7, 1, 3, 5, 4,
-                                1, 5, 4, 9, 3, 8, 6, 7, 2};
+                                1, 5, 4, 9, 3, 8, 6, 7, 2
+                             };
 
         Integer sampData2[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9,
                                 1, 2, 3, 4, 5, 6, 7, 8, 9,
@@ -111,7 +126,8 @@ public class SudokuBoard implements Comparable<SudokuBoard> {
                                 1, 2, 3, 4, 5, 6, 7, 8, 9,
                                 1, 2, 3, 4, 5, 6, 7, 8, 9,
                                 1, 2, 3, 4, 5, 6, 7, 8, 9,
-                                1, 2, 3, 4, 5, 6, 7, 8, 9};
+                                1, 2, 3, 4, 5, 6, 7, 8, 9
+                              };
 
         sb.fill(sampData);
         System.out.println("Fitness is: " + sb.getFitness());

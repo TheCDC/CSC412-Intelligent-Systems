@@ -10,7 +10,7 @@ public class SudokuBuilder {
     private int popsize;
     private GAPopulation pop;
     private Random rand = new Random();
-    private final Boolean doCrossover = false;
+
 
     public SudokuBuilder() {
         pop = new GAPopulation();
@@ -23,13 +23,11 @@ public class SudokuBuilder {
     }
 
     public int newGeneration() {
-        if (doCrossover) {
-            // breeding
-            pop = pop.breed();
-        }
-        else {
-            pop = pop.crossover();
-        }
+
+        // breeding
+        pop = pop.breed();
+
+
         // mutate
         pop.mutate(mutateProb);
 
@@ -45,9 +43,9 @@ public class SudokuBuilder {
         return pop.toString();
     }
 
-    public static void main(String[] args){
+    public static void main(String[] args) {
         SudokuBuilder builder = new SudokuBuilder();
-        int maxfitness = 0,lastfitness = 0;
+        int maxfitness = 0, lastfitness = 0;
         Stopwatch swatch = new Stopwatch();
         swatch.start();
         try {
@@ -55,7 +53,7 @@ public class SudokuBuilder {
             for (int generation = 0; generation < NUMGENERATIONS; generation++) {
                 lastfitness = maxfitness;
                 maxfitness = builder.newGeneration();
-                if (lastfitness != maxfitness) {
+                if (generation % 1000 == 0) {
                     System.out.println("Generation: " + generation + ", Fitness = " + maxfitness + "; mutateProb = " + mutateProb);
                 }
                 // writer.println(builder.getFitnessString());
@@ -63,12 +61,11 @@ public class SudokuBuilder {
                     break;
                 }
                 if ((mutateProb < 0.01) && (generation % 1000) == 0) {
-                    mutateProb *= 1.01;
+                    mutateProb *= 1.05;
                 }
             }
             // writer.close();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
 
         }
         swatch.stop();
